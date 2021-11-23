@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".todo.TodoFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.applikeysolutions.cosmocalendar.view.CalendarView
+            android:id="@+id/calenderView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:calendarBackgroundColor="@color/dark_3"
+            app:dayTextColor="@color/white"
+            app:firstDayOfTheWeek="sunday"
+            app:monthTextColor="@color/white"
+            app:otherDayTextColor="@color/dark_2"
+            app:selectedDayBackgroundColor="@color/orange"
+            app:selectedDayBackgroundEndColor="@color/orange"
+            app:selectedDayBackgroundStartColor="@color/orange"
+            app:selectedDayTextColor="@color/white"
+            app:weekDayTitleTextColor="@color/orange"
+            app:weekendDayTextColor="@color/red" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:background="@color/dark_3"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.github.clans.fab.FloatingActionMenu
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="8dp"
+                android:src="@drawable/ic_add"
+                app:fab_hideAnimation="@anim/fab_scale_down"
+                app:fab_showAnimation="@anim/fab_scale_up"
+                app:fab_showShadow="true"
+                app:fab_size="normal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:menu_colorNormal="@color/orange"
+                app:menu_colorPressed="@color/pressedOrange"
+                app:menu_colorRipple="@color/pressedOrange"
+                app:menu_labels_colorNormal="@color/white"
+                app:menu_labels_textColor="@color/dark_1">
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/addMissionButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_add"
+                    app:fab_colorNormal="@color/pressedOrange"
+                    app:fab_colorPressed="@color/orange"
+                    app:fab_colorRipple="@color/orange"
+                    app:fab_label="세부"
+                    app:fab_size="mini" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/addIdeaButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_add"
+                    app:fab_colorNormal="@color/pressedOrange"
+                    app:fab_colorPressed="@color/orange"
+                    app:fab_colorRipple="@color/orange"
+                    app:fab_label="간단"
+                    app:fab_size="mini" />
+
+            </com.github.clans.fab.FloatingActionMenu>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+
+</FrameLayout>
