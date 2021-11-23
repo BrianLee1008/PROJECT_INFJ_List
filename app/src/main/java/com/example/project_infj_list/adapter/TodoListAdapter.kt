@@ -8,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.project_infj_list.databinding.ItemTodoListBinding
 import com.example.project_infj_list.viewmodel.CurDateTodoList
 
-class TodoListAdapter : ListAdapter<CurDateTodoList, TodoListAdapter.TodoViewHolder>(diffUtil) {
+class TodoListAdapter(private val onClickListener: (position: Int, date: String) -> Unit) :
+	ListAdapter<CurDateTodoList, TodoListAdapter.TodoViewHolder>(diffUtil) {
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder =
 		TodoViewHolder(
@@ -16,19 +17,29 @@ class TodoListAdapter : ListAdapter<CurDateTodoList, TodoListAdapter.TodoViewHol
 				LayoutInflater.from(parent.context),
 				parent,
 				false
-			)
+			),
+			onClickListener
 		)
 
 	override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
 		holder.bindViews(currentList[position])
 	}
 
-	inner class TodoViewHolder(private val binding: ItemTodoListBinding) :
+	inner class TodoViewHolder(
+		private val binding: ItemTodoListBinding,
+		private val onClickListener: (position: Int, date: String) -> Unit
+	) :
 		RecyclerView.ViewHolder(binding.root) {
 
 		fun bindViews(curDateTodoList: CurDateTodoList) = with(binding) {
 			titleTextView.text = curDateTodoList.title
 			dateTextView.text = curDateTodoList.date
+
+			binding.root.setOnClickListener {
+				if (adapterPosition != RecyclerView.NO_POSITION) {
+					onClickListener(adapterPosition, curDateTodoList.date)
+				}
+			}
 		}
 
 	}

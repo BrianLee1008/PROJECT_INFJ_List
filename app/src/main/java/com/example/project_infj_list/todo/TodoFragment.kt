@@ -66,7 +66,11 @@ class TodoFragment : Fragment(), OnDaySelectedListener {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-		todoListAdapter = TodoListAdapter()
+		todoListAdapter = TodoListAdapter { position, date ->
+			todoViewModel.editTodo(position = position, date = date)
+			val intent = Intent(activity, MissionActivity::class.java)
+			startActivity(intent)
+		}
 		setCalenderView()
 		openMissionActivity()
 		setRecyclerView()
@@ -82,6 +86,14 @@ class TodoFragment : Fragment(), OnDaySelectedListener {
 		calenderView.selectionManager = SingleSelectionManager(this@TodoFragment)
 	}
 
+	/*
+	* Todo
+	*  추가된 날짜에 마커 새기기
+	*  메모 지우기, 메모 업데이트, 완료한 메모는 따로 체크모양
+	*  LiveData 업데이트 에러 이유 찾기
+	*  디자인 개선
+	*  로티 적용해보기
+	*  인스턴스 힐트 적용 - 공부*/
 	override fun onDaySelected() {
 
 		val days = hashSetOf<Long>()

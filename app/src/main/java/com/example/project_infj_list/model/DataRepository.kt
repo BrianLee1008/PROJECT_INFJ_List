@@ -1,7 +1,6 @@
 package com.example.project_infj_list.model
 
 import android.app.Application
-import androidx.lifecycle.LiveData
 import androidx.room.Room
 import com.example.project_infj_list.model.database.TodoDatabase
 import com.example.project_infj_list.model.entity.TodoEntity
@@ -19,6 +18,8 @@ class DataRepository(application: Application) {
 	fun getAllTodoAsLiveData() = todoDao.getAllTodoListAsLiveData()
 
 	fun insertTodo(todoEntity: TodoEntity) = todoDao.insertTodo(todoEntity)
+
+	fun getAllTodos(): List<TodoEntity> = todoDao.getAllTodo()
 
 
 	companion object {
