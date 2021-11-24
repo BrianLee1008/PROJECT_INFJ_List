@@ -1,11 +1,15 @@
 package com.example.project_infj_list.viewmodel
 
+import android.annotation.SuppressLint
+import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.*
+import com.applikeysolutions.cosmocalendar.settings.lists.connected_days.ConnectedDays
 import com.example.project_infj_list.model.DataRepository
 import com.example.project_infj_list.model.entity.TodoEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 
 //repoInstance
 class TodoViewModel(private val repository: DataRepository) : ViewModel() {
@@ -41,7 +45,7 @@ class TodoViewModel(private val repository: DataRepository) : ViewModel() {
 		val title = editTodoLiveData.value?.title
 		val description = editTodoLiveData.value?.description
 		val date = editTodoLiveData.value?.date
-		Log.d("editTodoLiveData","title : $title,  description : $description, date : $date")
+		Log.d("editTodoLiveData", "title : $title,  description : $description, date : $date")
 	}
 
 
@@ -58,6 +62,33 @@ class TodoViewModel(private val repository: DataRepository) : ViewModel() {
 				TodoEntity(todo.uid, todo.title, todo.description, todo.date)
 			)
 		}
+
+	private fun takeCurDateAtDB(): Set<String> {
+		val todoList = mutableSetOf<String>()
+		viewModelScope.launch(Dispatchers.IO) {
+			if (repository.getAllTodos().isNotEmpty()) {
+				repository.getAllTodos().forEach {
+					todoList.add(it.date)
+				}
+			} else {
+				return@launch
+			}
+		}
+		return todoList
+	}
+
+	fun checkMarker(sdf: SimpleDateFormat): ConnectedDays = with(Dispatchers.IO) {
+		val days = mutableSetOf<Long>()
+		takeCurDateAtDB().forEach {
+			val date: Long = sdf.parse(it).time
+			days.add(date)
+		}
+		val textColor: Int = Color.WHITE
+		val selectedTextColor: Int = Color.WHITE
+		val disabledTextColor: Int = Color.WHITE
+		return ConnectedDays(days, textColor, selectedTextColor, disabledTextColor)
+	}
+
 
 }
 

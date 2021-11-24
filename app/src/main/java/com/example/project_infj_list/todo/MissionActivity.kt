@@ -51,7 +51,7 @@ class MissionActivity : AppCompatActivity() {
 				date = date
 			)
 			Log.d("roomTest", "${titleTextView.text}, ${descriptionTextView.text}, $date")
-			finish()
+			finishAndRemoveTask()
 		}
 	}
 

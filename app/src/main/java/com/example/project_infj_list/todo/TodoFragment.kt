@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.OrientationHelper
 import com.applikeysolutions.cosmocalendar.selection.OnDaySelectedListener
 import com.applikeysolutions.cosmocalendar.selection.SingleSelectionManager
 import com.applikeysolutions.cosmocalendar.settings.appearance.ConnectedDayIconPosition
+import com.example.project_infj_list.R
 import com.example.project_infj_list.adapter.TodoListAdapter
 import com.example.project_infj_list.databinding.FragmentTodoBinding
 import com.example.project_infj_list.model.viewmodelfactory.MainViewModelFactory
@@ -23,6 +24,14 @@ import com.example.project_infj_list.viewmodel.MainViewModel
 import com.example.project_infj_list.viewmodel.TodoViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+
+/*
+* Todo
+*  메모 업데이트 - Update 메모 할때 LiveData 업데이트 구체적 에러 이유 찾았으니 해결해야함
+*  캘린더 이벤트 마커 - 디버깅모드에선 되는데 일반 빌드에선 안됨. 대체 무슨일인고
+*  디자인 개선 - 로티 적용, 캘린더 디자인, 갤린더 크기
+*  인스턴스 힐트 적용 - 공부
+* */
 
 
 class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemClickListener {
@@ -76,43 +85,37 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 		setCalenderView()
 		openMissionActivity()
 		setRecyclerView()
+		checkEventMarker()
 	}
 
 	private fun setCalenderView() = with(binding) {
-		calenderView.isShowDaysOfWeekTitle = false
-		calenderView.calendarOrientation = OrientationHelper.HORIZONTAL
-		calenderView.connectedDaySelectedIconRes = ConnectedDayIconPosition.TOP
-
-		// 클릭 이벤트 구현
-		calenderView.selectionManager = SingleSelectionManager(this@TodoFragment)
+		calenderView.run {
+			calendarOrientation = OrientationHelper.HORIZONTAL
+			selectionManager = SingleSelectionManager(this@TodoFragment)
+		}
 	}
 
-	/*
-	* Todo
-	*  메모 업데이트 - Update 메모 할때 LiveData 업데이트 구체적 에러 이유 찾았으니 해결해야함
-	*  디자인 개선 - 로티 적용, 캘린더 디자인, 갤린더 크기
-	*  인스턴스 힐트 적용 - 공부
-	* */
-	override fun onDaySelected() {
-
-		val days = hashSetOf<Long>()
+	override fun onDaySelected() = with(binding) {
 		val selectedDay: Date = binding.calenderView.selectedDays[0].calendar.time
-
 		try {
 			date = sdf.format(selectedDay)
-//			val timeInMilliseconds: Long = date.time
-//			days.add(timeInMilliseconds)
-
 		} catch (e: Exception) {
 			Log.e("DateException", e.message!!)
 		}
-		// 이벤트가 있는 날짜에 마커 추가.
-		/*val connectedDay = ConnectedDays(days,)
-		binding.calenderView.addConnectedDays(connectedDay)*/
 
 		getTodoList()
 	}
 
+	// co 디버깅 모드에선 되고 일반 빌드모드에선 안됨.. 잉?
+	// 이벤트가 있는 날짜에 마커 추가.
+	private fun checkEventMarker() = with(binding) {
+		val connectedDays = todoViewModel.checkMarker(sdf)
+		calenderView.run {
+			addConnectedDays(connectedDays)
+			connectedDayIconRes = R.drawable.ic_circle
+			connectedDayIconPosition = ConnectedDayIconPosition.BOTTOM
+		}
+	}
 
 	private fun openMissionActivity() = with(binding) {
 		if (calenderView.selectedDates.size <= 0) {
@@ -151,6 +154,9 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 	override fun onResume() {
 		super.onResume()
 		mainViewModel.replaceName(MainViewModel.FragmentToName.TODO)
+		if (binding.fab.isOpened) {
+			binding.fab.close(true)
+		}
 	}
 
 
