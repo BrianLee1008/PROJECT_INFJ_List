@@ -15,7 +15,4 @@ interface TodoDao : BaseDao<TodoEntity> {
 
 	@Query("SELECT * FROM todoEntity where title like :title")
 	fun searchTodo(title: String): LiveData<List<TodoEntity>>
-
-	@Query("DELETE FROM todoEntity where title = :title")
-	fun deleteTodo(title: String)
 }

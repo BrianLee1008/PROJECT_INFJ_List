@@ -19,6 +19,7 @@ import com.example.project_infj_list.adapter.TodoListAdapter
 import com.example.project_infj_list.databinding.FragmentTodoBinding
 import com.example.project_infj_list.model.viewmodelfactory.MainViewModelFactory
 import com.example.project_infj_list.model.viewmodelfactory.TodoViewModelFactory
+import com.example.project_infj_list.todo.MissionActivity.Companion.POSITION_KEY
 import com.example.project_infj_list.todo.MissionActivity.Companion.SELECTED_DAYS
 import com.example.project_infj_list.viewmodel.MainViewModel
 import com.example.project_infj_list.viewmodel.TodoViewModel
@@ -26,7 +27,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class TodoFragment : Fragment(), OnDaySelectedListener {
+class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemClickListener {
 
 	private lateinit var date: String
 	private val sdf = SimpleDateFormat("yyyy-MM-dd")
@@ -66,11 +67,15 @@ class TodoFragment : Fragment(), OnDaySelectedListener {
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
-		todoListAdapter = TodoListAdapter { position, date ->
-			todoViewModel.editTodo(position = position, date = date)
-			val intent = Intent(activity, MissionActivity::class.java)
-			startActivity(intent)
-		}
+		todoListAdapter = TodoListAdapter(
+			{ position ->
+				todoViewModel.editTodo(position = position)
+				val intent = Intent(activity, MissionActivity::class.java)
+				intent.putExtra(POSITION_KEY, position)
+				startActivity(intent)
+			},
+			this
+		)
 		setCalenderView()
 		openMissionActivity()
 		setRecyclerView()
@@ -89,8 +94,8 @@ class TodoFragment : Fragment(), OnDaySelectedListener {
 	/*
 	* Todo
 	*  추가된 날짜에 마커 새기기
-	*  메모 지우기, 메모 업데이트, 완료한 메모는 따로 체크모양
-	*  LiveData 업데이트 에러 이유 찾기
+	*  메모 업데이트, 완료한 메모는 따로 체크모양
+	*  Update 메모 할때 LiveData 업데이트 에러 이유 찾기
 	*  디자인 개선
 	*  로티 적용해보기
 	*  인스턴스 힐트 적용 - 공부*/
@@ -136,7 +141,6 @@ class TodoFragment : Fragment(), OnDaySelectedListener {
 		}
 	}
 
-	//co 옵저버 이상은 아니고 LiveData 문제인듯. insert 하고 다시 호출은 되는데 새로 저장한 값 제외하고 onCreate 할때 있었던 값만 it 에 들어옴.
 	private fun getTodoList() {
 		todoViewModel.getTodoListCurDate(date).observe(
 			viewLifecycleOwner,
@@ -144,6 +148,10 @@ class TodoFragment : Fragment(), OnDaySelectedListener {
 				todoListAdapter.submitList(it)
 			}
 		)
+	}
+
+	override fun setOnLongClickListener(position: Int) {
+		todoViewModel.deleteTodo(position)
 	}
 
 	// Todo 간단하게 키보드 위에 EditText만 올리는 방법이 없을까?

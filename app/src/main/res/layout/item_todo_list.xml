@@ -21,19 +21,17 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Title" />
 
-    <TextView
-        android:id="@+id/dateTextView"
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/deleteButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginEnd="8dp"
-        android:fontFamily="@font/ailerons_typeface"
-        android:textColor="@color/orange"
-        android:textSize="12sp"
-        android:textStyle="bold"
+        android:src="@drawable/ic_remove"
+        android:backgroundTint="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="21-11-11" />
+        app:tint="@color/white" />
 
     <View
         android:id="@+id/leftLine"

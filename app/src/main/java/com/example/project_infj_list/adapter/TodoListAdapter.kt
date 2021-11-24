@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.project_infj_list.databinding.ItemTodoListBinding
 import com.example.project_infj_list.viewmodel.CurDateTodoList
 
-class TodoListAdapter(private val onClickListener: (position: Int, date: String) -> Unit) :
+class TodoListAdapter(
+	private val onClickListener: (position: Int) -> Unit,
+	private val onLongCLickListener: OnItemClickListener
+) :
 	ListAdapter<CurDateTodoList, TodoListAdapter.TodoViewHolder>(diffUtil) {
 
 	override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder =
@@ -18,27 +21,38 @@ class TodoListAdapter(private val onClickListener: (position: Int, date: String)
 				parent,
 				false
 			),
-			onClickListener
+			onClickListener,
+			onLongCLickListener
 		)
 
 	override fun onBindViewHolder(holder: TodoViewHolder, position: Int) {
 		holder.bindViews(currentList[position])
 	}
 
+	interface OnItemClickListener {
+		fun setOnLongClickListener(position: Int)
+	}
+
 	inner class TodoViewHolder(
 		private val binding: ItemTodoListBinding,
-		private val onClickListener: (position: Int, date: String) -> Unit
+		private val onClickListener: (position: Int) -> Unit,
+		private val onLongCLickListener: OnItemClickListener
 	) :
 		RecyclerView.ViewHolder(binding.root) {
 
 		fun bindViews(curDateTodoList: CurDateTodoList) = with(binding) {
 			titleTextView.text = curDateTodoList.title
-			dateTextView.text = curDateTodoList.date
 
-			binding.root.setOnClickListener {
+			root.setOnClickListener {
 				if (adapterPosition != RecyclerView.NO_POSITION) {
-					onClickListener(adapterPosition, curDateTodoList.date)
+					onClickListener(adapterPosition)
 				}
+			}
+			deleteButton.setOnLongClickListener {
+				if (adapterPosition != RecyclerView.NO_POSITION) {
+					onLongCLickListener.setOnLongClickListener(adapterPosition)
+				}
+				return@setOnLongClickListener true
 			}
 		}
 

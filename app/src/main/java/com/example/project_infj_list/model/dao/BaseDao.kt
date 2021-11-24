@@ -1,9 +1,6 @@
 package com.example.project_infj_list.model.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Update
+import androidx.room.*
 
 @Dao
 interface BaseDao<T> {
@@ -13,6 +10,9 @@ interface BaseDao<T> {
 
 	@Update
 	fun updateTodo(t: T)
+
+	@Delete
+	fun deleteTodo(t: T)
 
 	@Delete
 	fun deleteAllTodos(t: List<T>)
