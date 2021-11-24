@@ -1,6 +1,5 @@
 package com.example.project_infj_list.viewmodel
 
-import android.annotation.SuppressLint
 import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.*
@@ -18,17 +17,25 @@ class TodoViewModel(private val repository: DataRepository) : ViewModel() {
 	private val curTodoListLiveData: LiveData<List<CurDateTodoList>>
 		get() = _curTodoListLiveData
 
+	private var _eventDateLiveData = MutableLiveData<Set<String>?>()
+	val eventDateLiveData: LiveData<Set<String>?>
+		get() = _eventDateLiveData
+
+
 	fun getTodoListCurDate(date: String): LiveData<List<CurDateTodoList>> =
 		repository.getAllTodoAsLiveData().map { list ->
 			val todoListCurDate = mutableListOf<CurDateTodoList>()
+			val eventDateSet = mutableSetOf<String>()
 			list.forEach {
 				if (date == it.date) {
 					todoListCurDate.add(
 						CurDateTodoList(it.uid, it.title, it.description, it.date)
 					)
 				}
+				eventDateSet.add(it.date)
 			}
 			_curTodoListLiveData.value = todoListCurDate
+			_eventDateLiveData.value = eventDateSet
 			todoListCurDate
 		}
 
@@ -48,7 +55,6 @@ class TodoViewModel(private val repository: DataRepository) : ViewModel() {
 		Log.d("editTodoLiveData", "title : $title,  description : $description, date : $date")
 	}
 
-
 	fun insertTodo(title: String, description: String, date: String) =
 		viewModelScope.launch(Dispatchers.IO) {
 			val todoEntity = TodoEntity(title = title, description = description, date = date)
@@ -59,37 +65,29 @@ class TodoViewModel(private val repository: DataRepository) : ViewModel() {
 		viewModelScope.launch(Dispatchers.IO) {
 			val todo = curTodoListLiveData.value?.get(position) ?: throw Exception("데이터 없음")
 			repository.deleteTodo(
-				TodoEntity(todo.uid, todo.title, todo.description, todo.date)
+				TodoEntity(
+					uid = todo.uid,
+					title = todo.title,
+					description = todo.description,
+					date = todo.date
+				)
 			)
 		}
 
-	private fun takeCurDateAtDB(): Set<String> {
-		val todoList = mutableSetOf<String>()
+	fun checkMarker(eventDate: Set<String>, sdf: SimpleDateFormat): ConnectedDays {
+		val days = mutableSetOf<Long>()
 		viewModelScope.launch(Dispatchers.IO) {
-			if (repository.getAllTodos().isNotEmpty()) {
-				repository.getAllTodos().forEach {
-					todoList.add(it.date)
+			if (eventDate.isNotEmpty()) {
+				eventDate.forEach {
+					val date: Long = sdf.parse(it).time
+					days.add(date)
 				}
 			} else {
 				return@launch
 			}
 		}
-		return todoList
+		return ConnectedDays(days, Color.WHITE, Color.WHITE, Color.WHITE)
 	}
-
-	fun checkMarker(sdf: SimpleDateFormat): ConnectedDays = with(Dispatchers.IO) {
-		val days = mutableSetOf<Long>()
-		takeCurDateAtDB().forEach {
-			val date: Long = sdf.parse(it).time
-			days.add(date)
-		}
-		val textColor: Int = Color.WHITE
-		val selectedTextColor: Int = Color.WHITE
-		val disabledTextColor: Int = Color.WHITE
-		return ConnectedDays(days, textColor, selectedTextColor, disabledTextColor)
-	}
-
-
 }
 
 data class CurDateTodoList(

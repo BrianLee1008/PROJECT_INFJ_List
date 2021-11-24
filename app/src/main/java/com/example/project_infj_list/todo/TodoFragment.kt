@@ -1,5 +1,6 @@
 package com.example.project_infj_list.todo
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.OrientationHelper
 import com.applikeysolutions.cosmocalendar.selection.OnDaySelectedListener
 import com.applikeysolutions.cosmocalendar.selection.SingleSelectionManager
 import com.applikeysolutions.cosmocalendar.settings.appearance.ConnectedDayIconPosition
+import com.applikeysolutions.cosmocalendar.settings.lists.connected_days.ConnectedDays
 import com.example.project_infj_list.R
 import com.example.project_infj_list.adapter.TodoListAdapter
 import com.example.project_infj_list.databinding.FragmentTodoBinding
@@ -27,8 +29,8 @@ import java.util.*
 
 /*
 * Todo
-*  메모 업데이트 - Update 메모 할때 LiveData 업데이트 구체적 에러 이유 찾았으니 해결해야함
-*  캘린더 이벤트 마커 - 디버깅모드에선 되는데 일반 빌드에선 안됨. 대체 무슨일인고
+*  이벤트 하나도 없으면 마커 실시간으로 삭제. 앱 껏다키면(라이프사이클돌면) 셋 컬렉션에서 해당 날짜 사라졌으니 마커도 사라짐. 근데 난 실시간으로 꺼지길 원함 (추가하는건 실시간으로 됨)
+*  메모 업데이트 - Update 메모 할때 LiveData 업데이트 구체적 에러 이유 찾았으니 해결해야함 -> 업데이트, 인서트 두개 토글로 만드는 세이브 함수 제작
 *  디자인 개선 - 로티 적용, 캘린더 디자인, 갤린더 크기
 *  인스턴스 힐트 적용 - 공부
 * */
@@ -37,6 +39,7 @@ import java.util.*
 class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemClickListener {
 
 	private lateinit var date: String
+	@SuppressLint("SimpleDateFormat")
 	private val sdf = SimpleDateFormat("yyyy-MM-dd")
 
 	// adapterInstance
@@ -74,6 +77,7 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 
 	override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 		super.onViewCreated(view, savedInstanceState)
+
 		todoListAdapter = TodoListAdapter(
 			{ position ->
 				todoViewModel.editTodo(position = position)
@@ -82,10 +86,11 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 			},
 			this
 		)
+
 		setCalenderView()
 		openMissionActivity()
 		setRecyclerView()
-		checkEventMarker()
+		observeEventDate()
 	}
 
 	private fun setCalenderView() = with(binding) {
@@ -102,18 +107,27 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 		} catch (e: Exception) {
 			Log.e("DateException", e.message!!)
 		}
-
 		getTodoList()
 	}
 
-	// co 디버깅 모드에선 되고 일반 빌드모드에선 안됨.. 잉?
+	private fun observeEventDate(){
+		todoViewModel.eventDateLiveData.observe(
+			viewLifecycleOwner, {
+				it?.let { eventDateSet ->
+					val days = todoViewModel.checkMarker(eventDateSet, sdf)
+					checkEventMarker(days)
+				}
+			}
+		)
+	}
+
 	// 이벤트가 있는 날짜에 마커 추가.
-	private fun checkEventMarker() = with(binding) {
-		val connectedDays = todoViewModel.checkMarker(sdf)
+	private fun checkEventMarker(eventDate : ConnectedDays) = with(binding) {
 		calenderView.run {
-			addConnectedDays(connectedDays)
+			addConnectedDays(eventDate)
 			connectedDayIconRes = R.drawable.ic_circle
 			connectedDayIconPosition = ConnectedDayIconPosition.BOTTOM
+			update()
 		}
 	}
 
@@ -150,7 +164,6 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 		todoViewModel.deleteTodo(position)
 	}
 
-
 	override fun onResume() {
 		super.onResume()
 		mainViewModel.replaceName(MainViewModel.FragmentToName.TODO)
@@ -159,11 +172,9 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 		}
 	}
 
-
 	override fun onDestroyView() {
 		super.onDestroyView()
 		_binding = null
 	}
-
 
 }
