@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -19,7 +18,6 @@ import com.example.project_infj_list.adapter.TodoListAdapter
 import com.example.project_infj_list.databinding.FragmentTodoBinding
 import com.example.project_infj_list.model.viewmodelfactory.MainViewModelFactory
 import com.example.project_infj_list.model.viewmodelfactory.TodoViewModelFactory
-import com.example.project_infj_list.todo.MissionActivity.Companion.POSITION_KEY
 import com.example.project_infj_list.todo.MissionActivity.Companion.SELECTED_DAYS
 import com.example.project_infj_list.viewmodel.MainViewModel
 import com.example.project_infj_list.viewmodel.TodoViewModel
@@ -71,7 +69,6 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 			{ position ->
 				todoViewModel.editTodo(position = position)
 				val intent = Intent(activity, MissionActivity::class.java)
-				intent.putExtra(POSITION_KEY, position)
 				startActivity(intent)
 			},
 			this
@@ -79,7 +76,6 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 		setCalenderView()
 		openMissionActivity()
 		setRecyclerView()
-		addIdea()
 	}
 
 	private fun setCalenderView() = with(binding) {
@@ -93,12 +89,10 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 
 	/*
 	* Todo
-	*  추가된 날짜에 마커 새기기
-	*  메모 업데이트, 완료한 메모는 따로 체크모양
-	*  Update 메모 할때 LiveData 업데이트 에러 이유 찾기
-	*  디자인 개선
-	*  로티 적용해보기
-	*  인스턴스 힐트 적용 - 공부*/
+	*  메모 업데이트 - Update 메모 할때 LiveData 업데이트 구체적 에러 이유 찾았으니 해결해야함
+	*  디자인 개선 - 로티 적용, 캘린더 디자인, 갤린더 크기
+	*  인스턴스 힐트 적용 - 공부
+	* */
 	override fun onDaySelected() {
 
 		val days = hashSetOf<Long>()
@@ -108,7 +102,6 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 			date = sdf.format(selectedDay)
 //			val timeInMilliseconds: Long = date.time
 //			days.add(timeInMilliseconds)
-			Toast.makeText(context, date, Toast.LENGTH_SHORT).show()
 
 		} catch (e: Exception) {
 			Log.e("DateException", e.message!!)
@@ -154,11 +147,6 @@ class TodoFragment : Fragment(), OnDaySelectedListener, TodoListAdapter.OnItemCl
 		todoViewModel.deleteTodo(position)
 	}
 
-	// Todo 간단하게 키보드 위에 EditText만 올리는 방법이 없을까?
-	private fun addIdea() = with(binding) {
-		addIdeaButton.setOnClickListener {
-		}
-	}
 
 	override fun onResume() {
 		super.onResume()

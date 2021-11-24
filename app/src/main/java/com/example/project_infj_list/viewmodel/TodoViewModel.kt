@@ -1,5 +1,6 @@
 package com.example.project_infj_list.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
 import com.example.project_infj_list.model.DataRepository
 import com.example.project_infj_list.model.entity.TodoEntity
@@ -10,7 +11,7 @@ import kotlinx.coroutines.launch
 class TodoViewModel(private val repository: DataRepository) : ViewModel() {
 
 	private var _curTodoListLiveData = MutableLiveData<List<CurDateTodoList>>()
-	val curTodoListLiveData: LiveData<List<CurDateTodoList>>
+	private val curTodoListLiveData: LiveData<List<CurDateTodoList>>
 		get() = _curTodoListLiveData
 
 	fun getTodoListCurDate(date: String): LiveData<List<CurDateTodoList>> =
@@ -27,10 +28,20 @@ class TodoViewModel(private val repository: DataRepository) : ViewModel() {
 			todoListCurDate
 		}
 
+	private var _editTodoLiveData = MutableLiveData<CurDateTodoList?>()
+	val editTodoLiveData: LiveData<CurDateTodoList?>
+		get() = _editTodoLiveData
+
+
 	fun editTodo(position: Int) {
 		val todoItem = curTodoListLiveData.value?.get(position) ?: throw Exception("데이터 없음")
-		// co 값 받아와짐
-		todoItem
+		_editTodoLiveData.value = todoItem
+
+		//co 값 잘 들어가는데? 왜 MissionActivity에서는 안들어가지는거야
+		val title = editTodoLiveData.value?.title
+		val description = editTodoLiveData.value?.description
+		val date = editTodoLiveData.value?.date
+		Log.d("editTodoLiveData","title : $title,  description : $description, date : $date")
 	}
 
 

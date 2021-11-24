@@ -68,18 +68,7 @@
                     app:fab_colorNormal="@color/pressedOrange"
                     app:fab_colorPressed="@color/orange"
                     app:fab_colorRipple="@color/orange"
-                    app:fab_label="세부"
-                    app:fab_size="mini" />
-
-                <com.github.clans.fab.FloatingActionButton
-                    android:id="@+id/addIdeaButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_add"
-                    app:fab_colorNormal="@color/pressedOrange"
-                    app:fab_colorPressed="@color/orange"
-                    app:fab_colorRipple="@color/orange"
-                    app:fab_label="간단"
+                    app:fab_label="Todo 추가"
                     app:fab_size="mini" />
 
             </com.github.clans.fab.FloatingActionMenu>
